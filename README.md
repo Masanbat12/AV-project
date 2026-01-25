@@ -1,11 +1,20 @@
 # Project Title:
 ## Autonomous Lane Keeping & Traffic Sign Recognition System Course: Software Engineering for Autonomous Vehicles
-עבודה עם פלטפורמת The Construct לפיתוח וסימולציית פרויקטים מבוססי ROS.
+## Development Environment
 
-העבודה בוצעה באמצעות פלטפורמת The Construct, המאפשרת פיתוח, הרצה וסימולציה של פרויקטים מבוססי ROS בסביבת Linux ו-Gazebo, ללא צורך בהתקנה מקומית.
+This project was developed and tested using **The Construct**, a cloud-based
+ROS development and simulation platform.  
+The platform enabled running, debugging, and validating the system without
+local installation, using a Linux-based environment with ROS and Gazebo.
+
+### סביבת פיתוח
+
+הפרויקט פותח והורץ באמצעות פלטפורמת **The Construct**, סביבת פיתוח וסימולציה
+מבוססת ענן לפרויקטים של ROS, המאפשרת עבודה עם Gazebo ולינוקס ללא התקנה מקומית.
 
 
-The project was implemented using The Construct, a cloud-based ROS development platform that enables simulation and execution without local installation.### pics of runnig code in https://app.theconstruct.ai/
+## Simulation Demo
+Screenshots and simulations were executed using The Construct platform.
 
 <img width="174" height="111" alt="image" src="https://github.com/user-attachments/assets/68563bb2-fd00-4898-ac05-e48fb3075871" />
 
