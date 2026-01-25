@@ -48,11 +48,17 @@ Adaptive Speed: Linear velocity is dynamically adjusted based on the error magni
 
 src/
 ├── cv_lane_follower/
+
 │ ├── scripts/
+
 │ │ └── smart_driver.py # Main logic node
+
 │ ├── launch/
+
 │ │ └── autorace.launch # Launch file (optional)
+
 │ └── CMakeLists.txt
+
 └── README.md
 
 
