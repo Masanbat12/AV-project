@@ -1,103 +1,123 @@
-# HIT - Intelligent Autonomous Vehicle Software Development
-## Autonomous Lane Keeping & Traffic Sign Recognition System Course: Software Engineering for Autonomous Vehicles
-The robot is capable of:
-1.  **Lane Keeping:** robustly following yellow and white lane markers.
-2.  **Traffic Sign Recognition:** detecting red stop signs.
-3.  **Adaptive Maneuvering:** analyzing the sign's position to decide whether to overtake from the left or right.
-4.  **State Management:** handling stops, overtaking, and returning to the lane autonomously.
+# 🚗 Autonomous Vehicle Control System
+## Lane Following • FSM Decision Making • PID Control
+A modular autonomous driving system built with ROS, OpenCV, and Finite State Machines, designed for lane following, stop-sign handling, and autonomous maneuvering.
 
-## 🏗️ System Architecture
+### 📌 Overview
+This project implements an autonomous vehicle controller that combines:
+- Computer Vision for lane and sign detection
+- Finite State Machine (FSM) for decision-making
+- PID Control for smooth and stable driving
+The system is designed to be modular, extensible, and simulation-ready, making it suitable for academic projects, autonomous driving simulations, and future research extensions.
 
-The system operates on a **Perception-Decision-Control** pipeline loop running at approximately 30Hz.
+### 🧠 System Architecture
+The system is divided into three logical layers:
+1️⃣ Perception Layer
+- Lane detection using OpenCV
+- Red stop-sign detection via color thresholding
+- Camera-based input processing
 
-### 1. Perception Layer (Computer Vision)
-Input data is received from the `/camera/rgb/image_raw` topic. The image processing pipeline includes:
-* **ROI (Region of Interest):** cropping the top 45% of the frame to remove background noise (sky, horizon).
-* **Color Space Conversion:** converting BGR images to **HSV** (Hue, Saturation, Value) to isolate yellow and white colors regardless of lighting conditions.
-* **Histogram Analysis:** Instead of simple blob tracking, the system computes a vertical histogram of pixel intensity. The peaks (`argmax`) of the histogram represent the lane centers.
-* **Dynamic Lane Estimation:** If one lane is missing (e.g., dashed lines), the system extrapolates the center based on the remaining visible lane and a fixed offset.
+2️⃣ Decision Layer (Finite State Machine)
+- Manages vehicle behavior
+- Handles state transitions based on perception and timing
 
+3️⃣ Control Layer
+- PID controller for steering
+- Speed control based on the current FSM state
+
+
+### 🔄 Finite State Machine (FSM)
 graph TD
     FOLLOW_LANE["FOLLOW_LANE<br/>PID lane keeping"]
-    STOP["STOP<br/>Wait 3 seconds"]
+    STOP["STOP<br/>Stop for 3 seconds"]
     OVERTAKE["OVERTAKE<br/>Avoid obstacle"]
-    RETURN["RETURN<br/>Merge back"]
+    RETURN["RETURN<br/>Merge back to lane"]
 
     FOLLOW_LANE -->|Red Sign Detected| STOP
     STOP -->|Timer 3s| OVERTAKE
     OVERTAKE -->|Timer Expired| RETURN
-    RETURN -->|Merge Done| FOLLOW_LANE
+    RETURN -->|Merge Completed| FOLLOW_LANE
 
+### 🧩 State Description
+- FOLLOW_LANE – Default driving mode using PID-based lane keeping
+- STOP – Vehicle stops for a fixed duration after detecting a red sign
+- OVERTAKE – Executes avoidance maneuver
+- RETURN – Safely merges back into the lane
 
-STOP: Triggered when the red mask area > 3000px. Stops the robot for 3 seconds.
-
-OVERTAKE: Executes an open-loop maneuver (linear + angular velocity) to bypass the obstacle. Logic: If the sign is on the left, the robot overtakes right, and vice versa.
-
-RETURN: A counter-maneuver to realign the robot with the track.
-
-3. Control Layer (PID)
-To ensure smooth lane centering, a Proportional-Derivative (PD) controller is implemented:
-
-Error Calculation: Error = (Lane Center) - (Image Center)
-
-Control Output: Angular Velocity = -Kp * Error
-
-Adaptive Speed: Linear velocity is dynamically adjusted based on the error magnitude (slows down in sharp turns, speeds up in straights).
-
-## 📂 File Structure
+### 📂 Project Structure
 
 src/
 ├── cv_lane_follower/
 
-│ ├── scripts/
+│   ├── scripts/
 
-│ │ └── smart_driver.py # Main logic node
+│   │   └── smart_driver.py      # FSM + PID main controller
 
-│ ├── launch/
+│   ├── launch/
 
-│ │ └── autorace.launch # Launch file (optional)
+│   │   └── autorace.launch      # ROS launch file (optional)
 
-│ └── CMakeLists.txt
+│   └── CMakeLists.txt
 
 └── README.md
 
 
-🚀 How to Run
-Prerequisites
-ROS (Kinetic or Noetic) installed.
+### 🐍 Main Module
+smart_driver.py
 
-TurtleBot3 Simulations packages.
+Responsibilities:
 
-Gazebo Simulator.
+- Lane detection pipeline
 
-Execution Steps
-Launch the Simulation:
-export TURTLEBOT3_MODEL=burger
-roslaunch turtlebot3_gazebo turtlebot3_autorace.launch
+- FSM logic and state transitions
 
-Run the Autonomous Driver:
-rosrun cv_lane_follower smart_driver.py
+- PID steering and speed control
 
-🧠 Algorithms & Code Highlights
-Histogram Peak Detection
-The core lane detection uses Numpy to sum pixel values vertically:
+- Timing logic for stop and maneuver states
 
-histogram = np.sum(mask_road[mask_road.shape[0]//2:, :], axis=0)
-left_base = np.argmax(histogram[:midpoint])
-right_base = np.argmax(histogram[midpoint:]) + midpoint
+The script is written to allow easy tuning and extension.
 
-This method is more robust than finding contours as it naturally filters out small noise.
+### ⚙️ Dependencies
+- ROS (Noetic recommended)
+- Python 3
+- OpenCV
 
-Smart Overtaking Decision
-The robot decides the direction dynamically based on the obstacle's centroid:
+## 🎯 Key Features
 
-M = cv2.moments(mask_red)
-sign_cx = int(M['m10'] / M['m00'])
+- 🚘 **Stable lane following** using PID control for smooth and accurate steering  
+- 🛑 **Stop-sign detection** with timed stopping behavior  
+- 🔁 **Autonomous maneuvering** and safe lane return  
+- 🧠 **FSM-based modular decision logic** for clear and maintainable behavior control  
+- 🧩 **Easily extensible architecture** for adding new driving behaviors  
 
-if sign_cx < lane_center:
-    self.overtake_dir = -1  # Sign is on Left -> Go Right
-else:
-    self.overtake_dir = 1   # Sign is on Right -> Go Left
+---
+
+## 🧪 Debugging & Tuning
+
+- PID parameters can be tuned directly in `smart_driver.py`  
+- Each FSM state is isolated, allowing focused debugging and testing  
+- Console logs indicate the active state and state transitions in real time  
+
+---
+
+## 🚀 Future Improvements
+
+- Traffic light detection and handling  
+- Pedestrian and obstacle classification  
+- Dynamic speed adaptation based on environment  
+- Sensor fusion (LiDAR / depth camera integration)  
+- Reinforcement learning-based decision layer  
+
+---
+
+## ⭐ Why This Project Matters
+
+This project demonstrates:
+
+- Real-world autonomous driving architecture  
+- Clean and structured FSM-based decision making  
+- Practical application of PID controllers  
+- Readable, maintainable, and scalable ROS code structure  
+
 
 ## Development Environment
 
